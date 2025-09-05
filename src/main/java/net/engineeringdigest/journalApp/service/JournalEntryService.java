@@ -40,7 +40,7 @@ public class JournalEntryService {
     }
 
     public List<JournalEntry> getTenEntries(){
-        Pageable pageable = PageRequest.of(0,10);
+        Pageable pageable = PageRequest.of(1,10);
         return journalEntryRepository.findBy(pageable);
     }
 }
