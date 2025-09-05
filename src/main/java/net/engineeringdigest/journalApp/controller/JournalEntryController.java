@@ -1,6 +1,6 @@
 package net.engineeringdigest.journalApp.controller;
 
-import net.engineeringdigest.journalApp.entity.JournalEntry;
+import net.engineeringdigest.journalApp.entity.JournalEntryEntity;
 import net.engineeringdigest.journalApp.service.JournalEntryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,7 +18,7 @@ public class JournalEntryController {
 
     @GetMapping("id/{id}")
     public  ResponseEntity<?>  getJournalEntry(@PathVariable String id){
-        Optional<JournalEntry> entryOptional = journalEntryService.getJournalEntryOById(id);
+        Optional<JournalEntryEntity> entryOptional = journalEntryService.getJournalEntryOById(id);
         if(!entryOptional.isPresent()) {
             return new ResponseEntity<>("Journal Entry not found",HttpStatus.NOT_FOUND);
         }
@@ -31,22 +31,22 @@ public class JournalEntryController {
     }
 
     @PostMapping
-    public ResponseEntity<?>  postJournalEntry(@RequestBody JournalEntry journalEntry){
-        if(journalEntry.getId() != null) {
+    public ResponseEntity<?>  postJournalEntry(@RequestBody JournalEntryEntity journalEntryEntity){
+        if(journalEntryEntity.getId() != null) {
             return new ResponseEntity<>("You can't set id",HttpStatus.BAD_REQUEST);
         }
-        journalEntry.setLocalDateTime(LocalDateTime.now());
-        journalEntryService.saveEntry(journalEntry);
-        return new ResponseEntity<>(journalEntryService.getJournalEntryOById(journalEntry.getId()).get(),HttpStatus.CREATED);
+        journalEntryEntity.setLocalDateTime(LocalDateTime.now());
+        journalEntryService.saveEntry(journalEntryEntity);
+        return new ResponseEntity<>(journalEntryService.getJournalEntryOById(journalEntryEntity.getId()).get(),HttpStatus.CREATED);
     }
 
     @PutMapping("id/{id}")
-    public ResponseEntity<?> editJournalEntry(@RequestBody JournalEntry journalEntry, @PathVariable String id){
-        journalEntry.setId(id);
-        if(!journalEntryService.editEntry(journalEntry)) {
+    public ResponseEntity<?> editJournalEntry(@RequestBody JournalEntryEntity journalEntryEntity, @PathVariable String id){
+        journalEntryEntity.setId(id);
+        if(!journalEntryService.editEntry(journalEntryEntity)) {
             return new ResponseEntity<>("Journal Entry not found with the ID",HttpStatus.NOT_FOUND);
         }
-        return new ResponseEntity<>(journalEntryService.getJournalEntryOById(journalEntry.getId()).get(),HttpStatus.OK);
+        return new ResponseEntity<>(journalEntryService.getJournalEntryOById(journalEntryEntity.getId()).get(),HttpStatus.OK);
     }
 
     @DeleteMapping("id/{id}")
