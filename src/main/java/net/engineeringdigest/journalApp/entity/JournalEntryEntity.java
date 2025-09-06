@@ -16,4 +16,11 @@ public class JournalEntryEntity {
     private String title;
     private String content;
     private LocalDateTime localDateTime;
+
+    @Override
+    public boolean equals(Object o){
+        if(o == null || getClass() != o.getClass()) return false;
+        JournalEntryEntity other = (JournalEntryEntity) o;
+        return getId().equals(other.getId());
+    }
 }

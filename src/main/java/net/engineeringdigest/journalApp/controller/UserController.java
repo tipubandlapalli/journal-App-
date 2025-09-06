@@ -24,7 +24,7 @@ public class UserController {
     public ResponseEntity<?> getTenUsers(){
         return new ResponseEntity<>(userService.getTenUsers(),HttpStatus.OK);
     }
-    @GetMapping("username/{username}")
+    @GetMapping("{username}")
     public ResponseEntity<?> getByUsername(@PathVariable String username){
         if(!userService.exitsByUsername(username)) {
             return new ResponseEntity<>("User not found",HttpStatus.NOT_FOUND);
@@ -33,7 +33,9 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createUser(@RequestBody UserEntity userEntity){
+    public ResponseEntity<?> createUser(
+            @RequestBody UserEntity userEntity
+    ){
 
         if(userEntity.getUsername().trim().isEmpty() || userEntity.getPassword().trim().isEmpty()){
             return new ResponseEntity<>("Invalid Username or password", HttpStatus.BAD_REQUEST);
@@ -42,30 +44,37 @@ public class UserController {
             return new ResponseEntity<>("Client can't decide ID", HttpStatus.BAD_REQUEST);
         }
         if(userService.exitsByUsername(userEntity.getUsername())){
-            return new ResponseEntity<>("Username not available", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("Username not available", HttpStatus.NOT_ACCEPTABLE);
         }
-        userEntity.setJournalEntryList(new ArrayList<>());
         userEntity.setLocalDateTime(LocalDateTime.now());
         userService.saveUser(userEntity);
         return new ResponseEntity<>(userEntity,HttpStatus.CREATED);
     }
+    @PutMapping("{username}")
+    public ResponseEntity<?> editUserById(
+            @PathVariable String username,
+            @RequestBody UserEntity userEntity
+    ){
 
-    @PutMapping("id/{id}")
-    public ResponseEntity<?> editUserById(@PathVariable String id, @RequestBody UserEntity userEntity){
-        if( userEntity.getId() != null && !userEntity.getId().trim().isEmpty() && !id.equals(userEntity.getId())) {
+        if( userEntity.getId() != null ) {
             return new ResponseEntity<>("Can't change ID",HttpStatus.UNAUTHORIZED);
         }
-        userEntity.setId(id);
-        if(userService.exitsByUsername(userEntity.getUsername())){
-            return new ResponseEntity<>("Username not available", HttpStatus.BAD_REQUEST);
+        if(!userService.exitsByUsername(username)){
+            return new ResponseEntity<>("User does not exists",HttpStatus.NOT_FOUND);
         }
-        Optional<UserEntity> userEntityOptional = userService.editById(id,userEntity);
-        if(!userEntityOptional.isPresent()) {
-            return new ResponseEntity<>("User not found",HttpStatus.NOT_FOUND);
+        if(     !userEntity.getUsername().trim().isEmpty()
+                && !username.equals(userEntity.getUsername())
+                && userService.exitsByUsername(userEntity.getUsername())
+        ){
+            return new ResponseEntity<>("Username not available", HttpStatus.NOT_ACCEPTABLE);
         }
-        return new ResponseEntity<>(userEntityOptional.get(),HttpStatus.OK);
+
+        if(!userService.editByUsername(username,userEntity)) {
+            return new ResponseEntity<>("You are not authorized",HttpStatus.UNAUTHORIZED);
+        }
+        return new ResponseEntity<>(HttpStatus.OK);
     }
-    @DeleteMapping("username/{username}")
+    @DeleteMapping("{username}")
     public ResponseEntity<?> deleteByUsername(@PathVariable String username){
         if(!userService.exitsByUsername(username)) {
             return new ResponseEntity<>("User not found",HttpStatus.NOT_FOUND);

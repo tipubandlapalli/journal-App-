@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import net.engineeringdigest.journalApp.entity.JournalEntryEntity;
 import net.engineeringdigest.journalApp.entity.UserEntity;
+import net.engineeringdigest.journalApp.repository.JournalEntryRepository;
 import net.engineeringdigest.journalApp.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -16,7 +17,7 @@ public class UserService {
     private UserRepository userRepository;
 
     @Autowired
-    private JournalEntryService journalEntryService;
+    private JournalEntryRepository journalEntryRepository;
 
     public boolean exitsByUsername(String username){
        return userRepository.existsByUsername(username);
@@ -45,21 +46,33 @@ public class UserService {
         UserEntity userEntity = userRepository.findByUsername(username);
         List<JournalEntryEntity> list = userEntity.getJournalEntryList();
         for(JournalEntryEntity journalEntry: list) {
-            journalEntryService.deleteEntry(journalEntry.getId());
+            journalEntryRepository.deleteById(journalEntry.getId());
         }
         userRepository.deleteById(userEntity.getId());
     }
 
-    public Optional<UserEntity>  editById(String id, UserEntity userEntity) {
-        Optional<UserEntity> userEntityOptional = userRepository.findById(id);
+    public boolean editByUsername(String username, UserEntity userEntity) {
+        if(!userRepository.existsByUsername(username)) {
+            return false;
+        }
+        UserEntity userEntityExists = userRepository.findByUsername(username);
 
-        if(!userEntityOptional.isPresent()) return userEntityOptional;
+        boolean[] is = {
+                !userEntity.getUsername().trim().isEmpty(),
+                !userEntity.getPassword().trim().isEmpty(),
+                userEntity.getEmail() != null && !userEntity.getEmail().trim().isEmpty()
+        };
+        String[] val = {
+                userEntity.getUsername(),
+                userEntity.getPassword(),
+                userEntity.getEmail()
+        };
+        if(is[0]) userEntityExists.setUsername(val[0]);
+        if(is[1]) userEntityExists.setPassword(val[1]);
+        if(is[2]) userEntityExists.setEmail(val[2]);
 
-        if(userEntity.getPassword().trim().isEmpty()) userEntity.setPassword(userEntityOptional.get().getPassword());
-        if(userEntity.getUsername().trim().isEmpty()) userEntity.setUsername(userEntityOptional.get().getUsername());
-        if(userEntity.getEmail() == null || userEntity.getEmail().trim().isEmpty()) userEntity.setEmail(userEntityOptional.get().getEmail());
-        userEntity.setJournalEntryList(userEntityOptional.get().getJournalEntryList());
-        userRepository.save(userEntity);
-        return userRepository.findById(userEntity.getId());
+        userRepository.save(userEntityExists);
+
+        return true;
     }
 }

@@ -5,6 +5,7 @@ import lombok.NonNull;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
@@ -26,6 +27,6 @@ public class UserEntity {
     private String email;
 
     @DBRef
-    private List<JournalEntryEntity> journalEntryList;
+    private List<JournalEntryEntity> journalEntryList = new ArrayList<>();
 
 }
