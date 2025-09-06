@@ -1,5 +1,5 @@
 package net.engineeringdigest.journalApp.controller;
-import jdk.internal.org.objectweb.asm.Opcodes;
+
 import net.engineeringdigest.journalApp.entity.UserEntity;
 import net.engineeringdigest.journalApp.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,9 +8,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Optional;
-
 
 @RestController
 @RequestMapping("/user")
