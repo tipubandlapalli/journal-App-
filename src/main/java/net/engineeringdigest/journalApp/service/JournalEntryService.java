@@ -25,35 +25,33 @@ public class JournalEntryService {
         return journalEntryRepository.findById(id);
     }
 
-    public void saveEntry(JournalEntryEntity entry,String username){
+    public JournalEntryEntity saveEntry(JournalEntryEntity entry,String username){
         UserEntity userEntity = userRepository.findByUsername(username);
 
         JournalEntryEntity saved = journalEntryRepository.save(entry);
 
-        userEntity.getJournalEntryList().add(entry);
+        userEntity.getJournalEntryList().add(saved);
         userRepository.save(userEntity);
+        return saved;
     }
     public void saveEntry(JournalEntryEntity entry){
         journalEntryRepository.save(entry);
     }
 
-    public boolean editEntry(JournalEntryEntity entry, String username){
-        UserEntity userEntity = userRepository.findByUsername(username);
+    public JournalEntryEntity editEntry(JournalEntryEntity entry, String username, String entryId){
 
-        Optional<JournalEntryEntity> entryExists = journalEntryRepository.findById(entry.getId());
+        JournalEntryEntity entryExists = journalEntryRepository.findById(entryId).get();
 
-        if(!entryExists.isPresent() || !userEntity.getJournalEntryList().contains(entryExists.get())) return false;
+        boolean title = entry.getTitle() != null && !entry.getTitle().trim().isEmpty();
+        boolean content = entry.getContent() != null && !entry.getContent().trim().isEmpty();
 
-        boolean title = entry.getTitle() != null && entry.getTitle().trim().isEmpty();
-        boolean content = entry.getContent() != null && entry.getContent().trim().isEmpty();
         if(title) {
-            entryExists.get().setTitle(entry.getTitle());
+            entryExists.setTitle(entry.getTitle());
         }
         if(content) {
-            entryExists.get().setContent(entry.getContent());
+            entryExists.setContent(entry.getContent());
         }
-        saveEntry(entry);
-        return true;
+        return journalEntryRepository.save(entry);
     }
     public boolean deleteEntry(String id,String username){
         UserEntity userEntity = userRepository.findByUsername(username);
@@ -68,6 +66,15 @@ public class JournalEntryService {
     
     public boolean isUserExistsByUsername(String username){
         return userRepository.existsByUsername(username);
+    }
+
+    public boolean isOwnershipCorrect(String username, String id) {
+        UserEntity userEntity = userRepository.findByUsername(username);
+
+        JournalEntryEntity temp = new JournalEntryEntity();
+        temp.setId(id);
+
+        return userEntity.getJournalEntryList().contains(temp);
     }
 
 //    public List<JournalEntryEntity> getTenEntries(){

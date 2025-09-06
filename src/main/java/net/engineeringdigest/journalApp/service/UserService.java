@@ -31,10 +31,10 @@ public class UserService {
         return userRepository.findByUsername(username);
     }
 
-    public void saveUser(UserEntity userEntity){
+    public UserEntity saveUser(UserEntity userEntity){
         userEntity.setUsername(userEntity.getUsername().trim());
         userEntity.setPassword(userEntity.getPassword().trim());
-        userRepository.save(userEntity);
+        return userRepository.save(userEntity);
     }
 
     public List<UserEntity> getTenUsers() {
@@ -48,13 +48,11 @@ public class UserService {
         for(JournalEntryEntity journalEntry: list) {
             journalEntryRepository.deleteById(journalEntry.getId());
         }
-        userRepository.deleteById(userEntity.getId());
+        userRepository.deleteByUsername(userEntity.getUsername());
     }
 
-    public boolean editByUsername(String username, UserEntity userEntity) {
-        if(!userRepository.existsByUsername(username)) {
-            return false;
-        }
+    public UserEntity editByUsername(String username, UserEntity userEntity) {
+
         UserEntity userEntityExists = userRepository.findByUsername(username);
 
         boolean[] is = {
@@ -71,8 +69,6 @@ public class UserService {
         if(is[1]) userEntityExists.setPassword(val[1]);
         if(is[2]) userEntityExists.setEmail(val[2]);
 
-        userRepository.save(userEntityExists);
-
-        return true;
+        return userRepository.save(userEntityExists);
     }
 }

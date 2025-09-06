@@ -9,5 +9,4 @@ import java.util.List;
 @Repository
 public interface JournalEntryRepository extends MongoRepository<JournalEntryEntity,String> {
     List<JournalEntryEntity> findBy(Pageable pageable);
-
 }

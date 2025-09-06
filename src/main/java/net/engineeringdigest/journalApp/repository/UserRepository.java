@@ -10,5 +10,6 @@ import java.util.List;
 public interface UserRepository extends MongoRepository<UserEntity,String> {
     boolean existsByUsername(String username);
     UserEntity findByUsername(String username);
+    void deleteByUsername(String username);
     List<UserEntity> findBy(Pageable pageable);
 }
